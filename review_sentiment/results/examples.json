@@ -1,0 +1,62 @@
+[
+  {
+    "text": "3단으로 구매했는데 잘 쓰고 있어요.",
+    "label": "positive",
+    "predicted": "positive",
+    "p_positive": 0.982
+  },
+  {
+    "text": "저렴하게 잘 구입했습니다. 날이 정말 예리하네요~",
+    "label": "positive",
+    "predicted": "positive",
+    "p_positive": 0.99
+  },
+  {
+    "text": "해외여행갈때 너무 좋네요 적당히 커서 다 들어갑니다! 어느 제품보다 좋아요",
+    "label": "positive",
+    "predicted": "positive",
+    "p_positive": 0.991
+  },
+  {
+    "text": "화면이랑 색이 좀 달라서 ㅜㅠㅠ 당황스러웠어요. 같이 들어있는 책자가 중국어라 모르겠어요",
+    "label": "negative",
+    "predicted": "negative",
+    "p_positive": 0.009
+  },
+  {
+    "text": "사이즈가 너무 작아요 타제품과 거의 두사이즈 차이가 나네요 햄라인 팬티인데도 엉덩이 자국이ㅠㅠ",
+    "label": "negative",
+    "predicted": "negative",
+    "p_positive": 0.003
+  },
+  {
+    "text": "빨대가 너무 얇아서 불편해요..ㅠ",
+    "label": "negative",
+    "predicted": "negative",
+    "p_positive": 0.005
+  },
+  {
+    "text": "음 좋다해서삿는데 그저그럼 그래도 트러블안나고향도 안간해서 쏘쏘",
+    "label": "positive",
+    "predicted": "negative",
+    "p_positive": 0.287
+  },
+  {
+    "text": "이거 아니면 설사하네요ㅠ 뉴초를 벗어날수가없네요 ㅋㅋㅋ",
+    "label": "positive",
+    "predicted": "negative",
+    "p_positive": 0.032
+  },
+  {
+    "text": "딸 기타 사용한다고 좋다고 하네오",
+    "label": "negative",
+    "predicted": "positive",
+    "p_positive": 0.979
+  },
+  {
+    "text": "생각보다 알이 너무 크고 먹으면 속이 안좋아여 ㅎㅎ구래도 몸에 좋으니 열심히 먹어야 겠어료",
+    "label": "negative",
+    "predicted": "positive",
+    "p_positive": 0.673
+  }
+]

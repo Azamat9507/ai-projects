@@ -1,0 +1,30 @@
+{
+  "model": "klue/roberta-small",
+  "parameters": 68092418,
+  "device": "mps",
+  "train_size": 60000,
+  "test_size": 20000,
+  "epochs": 2,
+  "max_len": 64,
+  "batch": 32,
+  "lr": 3e-05,
+  "train_seconds": 20221.2,
+  "accuracy": 0.9315,
+  "f1": 0.932225190462056,
+  "confusion_matrix": [
+    [
+      9208,
+      752
+    ],
+    [
+      618,
+      9422
+    ]
+  ],
+  "baseline_tfidf_logreg": {
+    "accuracy": 0.91445,
+    "f1": 0.914274262237587,
+    "seconds": 2.8
+  },
+  "train_seconds_note": "wall clock; the laptop slept for hours during this run. About 20 minutes of compute at ~3 steps/s."
+}
