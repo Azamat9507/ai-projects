@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI demo — Menu Detector & Review sentiment</title>
+<style>
+:root { --ink: #0b1220; --sky: #38b6ff; --lime: #c8f169; --bg: #f3f5f8; --card: #fff; --line: #e2e7ee; --muted: #5b6678; --good: #15803d; --bad: #b91c1c; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--ink); }
+header { background: var(--ink); color: #fff; padding: 22px 32px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+header h1 { font-size: 22px; } header span { color: #9fb0c8; font-size: 14px; }
+main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 24px 32px; max-width: 1280px; margin: 0 auto; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 16px; } header { padding: 16px; } }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; }
+section h2 { font-size: 20px; } .tag { font: 600 11px ui-monospace, Menlo, monospace; letter-spacing: .12em; color: var(--sky); text-transform: uppercase; }
+section p.lead { color: var(--muted); font-size: 14px; margin: 6px 0 16px; line-height: 1.5; }
+.drop { display: block; border: 2px dashed var(--line); border-radius: 14px; padding: 18px; text-align: center; cursor: pointer; color: var(--muted); font-size: 14px; }
+.drop.over { border-color: var(--sky); background: #eef8ff; }
+.samples { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.samples img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; cursor: pointer; border: 2px solid transparent; }
+.samples img:hover { border-color: var(--sky); }
+.result { display: grid; grid-template-columns: 220px 1fr; gap: 18px; margin-top: 18px; align-items: start; }
+@media (max-width: 520px) { .result { grid-template-columns: 1fr; } }
+.result img { width: 100%; border-radius: 12px; display: block; }
+.bar { margin: 8px 0; } .bar .row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+.bar .track { height: 10px; background: #edf1f6; border-radius: 6px; overflow: hidden; } .bar .fill { height: 100%; background: var(--sky); border-radius: 6px; }
+.bar.top .row b { font-size: 18px; } .bar.top .fill { background: var(--ink); }
+textarea { width: 100%; min-height: 150px; border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-family: inherit; font-size: 15px; line-height: 1.5; resize: vertical; }
+button { background: var(--ink); color: #fff; border: 0; border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+button.ghost { background: #edf1f6; color: var(--ink); margin-left: 6px; }
+.reviews { margin-top: 16px; display: grid; gap: 10px; }
+.rv { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.rv .t { font-size: 15px; line-height: 1.45; } .rv .m { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.badge { font-weight: 700; padding: 2px 10px; border-radius: 999px; font-size: 12.5px; }
+.badge.positive { background: #dcfce7; color: var(--good); } .badge.negative { background: #fee2e2; color: var(--bad); }
+.mini { flex: 1; height: 6px; background: #fee2e2; border-radius: 4px; overflow: hidden; } .mini i { display: block; height: 100%; background: #22c55e; }
+.note { font-size: 12.5px; color: var(--muted); margin-top: 14px; line-height: 1.5; }
+</style></head>
+<body>
+<header><h1>AI demo</h1><span>Menu Detector (MobileNetV2) · Review sentiment (klue/roberta-small) — both models run on this computer</span></header>
+<main>
+<section>
+  <div class="tag">Computer vision</div><h2>Menu Detector</h2>
+  <p class="lead">Drop a food photo, or pick a test photo the model never saw. It knows six dishes: hamburger, hot dog, pizza, french fries, fried rice and dessert (cakes).</p>
+  <label class="drop" id="drop">Drop a photo here or click to choose one<input id="file" type="file" accept="image/*" hidden></label>
+  <div class="samples" id="samples"></div>
+  <div class="result" id="photoResult" hidden><img id="preview" alt=""><div id="bars"></div></div>
+</section>
+<section>
+  <div class="tag">NLP · transformer</div><h2>Review sentiment</h2>
+  <p class="lead">Write Korean shopping reviews, one per line. The model says whether the buyer was happy and how sure it is.</p>
+  <textarea id="texts">배송도 빠르고 품질도 좋아요. 재구매 의사 있습니다
+사진이랑 색이 너무 달라요. 반품하려고요
+가격 대비 괜찮은데 사이즈가 좀 작아요
+포장이 꼼꼼해서 선물용으로 딱이에요</textarea>
+  <button id="score">Analyse</button><button class="ghost" id="clear">Clear</button>
+  <div class="reviews" id="reviews"></div>
+  <p class="note">p(+) is the probability that the review is positive. Trained on 60,000 Naver shopping reviews; 93.2% accuracy on 20,000 held-out reviews.</p>
+</section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const pretty = (s) => s.replace('_', ' ');
+
+async function classify(blob, src) {
+  $('photoResult').hidden = false; $('preview').src = src; $('bars').innerHTML = '<p class="note">Thinking…</p>';
+  const res = await fetch('/api/menu', { method: 'POST', body: blob });
+  const out = await res.json();
+  if (!res.ok) { $('bars').innerHTML = '<p class="note">That file could not be read as an image.</p>'; return; }
+  $('bars').innerHTML = out.slice(0, 4).map((r, i) =>
+    `<div class="bar ${i ? '' : 'top'}"><div class="row"><b>${pretty(r.label)}</b><span>${(r.p * 100).toFixed(1)}%</span></div><div class="track"><div class="fill" style="width:${r.p * 100}%"></div></div></div>`).join('');
+}
+
+$('file').onchange = (e) => { const f = e.target.files[0]; if (f) classify(f, URL.createObjectURL(f)); };
+const drop = $('drop');
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) classify(f, URL.createObjectURL(f)); };
+
+fetch('/api/samples').then((r) => r.json()).then((files) => {
+  $('samples').innerHTML = files.map((f) => `<img src="/samples/${f}" data-f="${f}" title="${f.split('/')[0]}">`).join('');
+  $('samples').querySelectorAll('img').forEach((img) => img.onclick = async () => classify(await (await fetch(img.src)).blob(), img.src));
+});
+
+$('score').onclick = async () => {
+  const texts = $('texts').value.split('\n').filter((t) => t.trim());
+  if (!texts.length) return;
+  $('reviews').innerHTML = '<p class="note">Thinking…</p>';
+  const out = await (await fetch('/api/review', { method: 'POST', body: JSON.stringify({ texts }) })).json();
+  $('reviews').innerHTML = out.map((r) => `<div class="rv"><div class="t"></div><div class="m"><span class="badge ${r.label}">${r.label}</span><div class="mini"><i style="width:${r.p_positive * 100}%"></i></div><span>p(+) ${r.p_positive.toFixed(2)}</span></div></div>`).join('');
+  $('reviews').querySelectorAll('.t').forEach((el, i) => el.textContent = out[i].text);
+};
+$('clear').onclick = () => { $('texts').value = ''; $('reviews').innerHTML = ''; };
+</script>
+</body></html>

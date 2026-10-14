@@ -43,6 +43,15 @@ python review_sentiment/train.py
 python review_sentiment/predict.py "배송 빠르고 좋아요" "사이즈가 안 맞아요"
 ```
 
+## Demo
+
+```
+python demo/app.py   # then open http://127.0.0.1:7860
+```
+
+One page for both models: drop a food photo (or pick a test photo the model never saw) and type Korean reviews,
+one per line. Standard-library server; both models load once at start and run on the CPU.
+
 ## Setup
 
 ```
