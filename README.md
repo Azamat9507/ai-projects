@@ -1,6 +1,6 @@
-# computer_vision
+# AI projects
 
-Course work on computer vision and NLP: OpenCV and PyTorch notebooks, and two small projects trained end to end.
+Computer vision and NLP in PyTorch: two projects trained end to end, plus the OpenCV and PyTorch notebooks I learned on.
 
 | Project | Task | Model | Result |
 |---|---|---|---|
